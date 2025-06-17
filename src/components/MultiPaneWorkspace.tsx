@@ -84,7 +84,19 @@ export default function MultiPaneWorkspace() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      // Detecta mobile usando múltiplas verificações para maior precisão
+      const isMobileDevice = window.innerWidth <= 768 || 
+                           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                           ('ontouchstart' in window);
+      
+      console.log('Detectando mobile:', {
+        innerWidth: window.innerWidth,
+        userAgent: navigator.userAgent,
+        touchSupport: 'ontouchstart' in window,
+        isMobileResult: isMobileDevice
+      });
+      
+      setIsMobile(isMobileDevice);
     };
     
     checkMobile();
@@ -115,9 +127,17 @@ export default function MultiPaneWorkspace() {
     setMobileMenuOpen(false);
   };
 
+  // Debug: Adicionar indicador visual para verificar se está sendo detectado como mobile
+  console.log('isMobile atual:', isMobile, 'window.innerWidth:', window.innerWidth);
+
   if (isMobile) {
     return (
       <div className="h-screen bg-gray-900 text-white flex flex-col">
+        {/* Indicador de debug para mobile */}
+        <div className="bg-red-600 text-white text-center py-1 text-sm">
+          MODO MOBILE ATIVO - Width: {window.innerWidth}px
+        </div>
+
         {/* Pane Library Modal */}
         {showPaneLibrary && (
           <PaneLibrary
@@ -188,7 +208,7 @@ export default function MultiPaneWorkspace() {
             <Menu size={20} />
           </button>
           
-          <div className="flex-1 flex items-center overflow-x-auto scrollbar-hide">
+          <div className="flex-1 flex items-center overflow-x-auto">
             <div className="flex gap-2 px-2">
               {openPanes.map(paneId => {
                 const pane = AVAILABLE_PANES[paneId];
@@ -223,6 +243,11 @@ export default function MultiPaneWorkspace() {
   // Desktop Layout
   return (
     <div className="h-screen bg-gray-900 text-white flex">
+      {/* Indicador de debug para desktop */}
+      <div className="absolute top-0 right-0 bg-blue-600 text-white px-2 py-1 text-xs z-50">
+        MODO DESKTOP - Width: {window.innerWidth}px
+      </div>
+
       {/* Pane Library Modal */}
       {showPaneLibrary && (
         <PaneLibrary
